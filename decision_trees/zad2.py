@@ -1,3 +1,24 @@
+"""
+Дадено е податочно множество од риби кое е опишано со следните атрибути:
+
+    0  Weight      Weight of the fish (in grams)
+    1  Length1     Length from the nose to the beginning of the tail (in cm)
+    2  Length2     Length from the nose to the notch of the tail (in cm)
+    3  Length3     Length from the nose to the end of the tail (in cm)
+    4  Height%     Maximal height as % of Length3
+    5  Width%      Maximal width as % of Length3
+    6  Class       Fish Species
+Класата (видот на рибата) е дадена во последната колона.
+
+Да се направи модел за класификација за даденото податочно множество.
+За тренинг да се земат само првите 40 примероци од класите Roach и Pike (Првите 40 од Roach и првите 40 од Pike).
+Значи треба да се направи бинарен класификатор, при што секоја класа освен _Roach_ и _Pike_ се игнорира при тренирањето на множеството.
+Притоа земањето на првите 40 примероци да се направи во програмата, а не со рачно копирање!
+Ако во множеството има помалку од 40 примероци од дадена класа, се земаат онолку колку што има (т.е. сите што ги има).
+
+Да се класифицира елементот даден на влез и да се испечати предвидувањето.
+"""
+
 from materials.decision_tree_learning import build_tree, classify, max_classification
 
 data=[[180.0, 23.6, 25.2, 27.9, 25.4, 14.0, 'Roach'],
@@ -166,20 +187,23 @@ if __name__ == "__main__":
 
     roach_set = []
     for row in data:
+        # list[-1] -> the last element of the list
         if row[-1] == 'Roach':
             roach_set.append(row)
-
     roach_set = roach_set[:40]
 
+    # list comprehension -> the process of creating a list, from another list
+    # the syntax: new_list = [what-we-want-to-keep-in-the-new-list for item in otherList if some-condition]
+    # some-condition is optional
     pike_set = [row for row in data if row[-1] == 'Pike'][:40]
+    # roach_set = [row for row in data if row[-1] == 'Roach'][:40]
 
+    # the '+' operator on lists combines the elements of the two lists into one list
     train_data = roach_set + pike_set
 
     tree = build_tree(train_data)
 
     class_dict = classify(test_case, tree)
-
     class_name = max_classification(class_dict)
-
     print(class_name)
 

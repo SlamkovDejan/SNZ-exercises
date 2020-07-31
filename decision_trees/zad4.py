@@ -1,3 +1,20 @@
+"""
+Во науката за анализа на податоци откако ќе биде истрениран модел врз податочно множество базирано на неколку
+карактеристики, често се прави експеримент кој се нарекува аблација (отстранување). Целта на овој експеримент
+е да се одреди која од карактеристиките има најмногу влијание врз точноста на моделот, а со тоа и која е најклучна
+карактеристика - од која најмногу зависи класната припадност на примероците.
+
+За оваа задача во променливата dataset ви е дадено податочно множество кое се однесува на цвеќиња наречени Iris.
+Секој ред од множеството се однесува на едно од трите класи на цвеќиња означени со 0, 1 и 2. За секое цвеќе има четири
+карактеристики кои се однесуваат на должината и ширината на неговите листови. Ова податочно множество го делите на два
+дела: тренирачко множество со првите 80% од редиците и тестирачко множество со останатите 20% од податоците.
+
+Од стандарден влез се чита индексот на една колона од податочното множество во променливата column_ind.
+Ваша задача е да направите две дрва на одлука, така што првото дрво на одлука ќе ги користи сите карактеристики од
+податочното множество, додека второто дрво на одлука ќе го користи множеството каде што е отстранета колоната со индекс
+column_ind. Пресметајте точност со двете дрва и на стандарден излез испечатете ја точноста на двете дрва.
+"""
+
 from materials.decision_tree_learning import build_tree, classify, max_classification
 
 dataset = [
@@ -139,30 +156,38 @@ dataset = [
     [5.5, 2.4, 3.7, 1.0, 2],
     [5.8, 2.7, 3.9, 1.2, 2],
     [6.0, 2.7, 5.1, 1.6, 2],
-    [6.7, 3.1, 5.6, 2.4, 0], # => colum_ind = 0; new_row = [3.1, 5.6, 2.4, 0]
+    [6.7, 3.1, 5.6, 2.4, 0], # column_ind = 0; new_row = [3.1, 5.6, 2.4, 0]
     [6.9, 3.1, 5.1, 2.3, 0],
     [5.8, 2.7, 5.1, 1.9, 0],
 ]
 
-
 if __name__ == "__main__":
     column_ind = int(input())
 
-    eighy = int(len(dataset) * 0.8)
+    eighty = int(len(dataset) * 0.8)
 
-    train = dataset[:eighy]
-    test = dataset[eighy:]
+    train = dataset[:eighty]
+    test = dataset[eighty:]
 
-    tree1 = build_tree(train)
-
+    # one way (no list comprehension)
     new_train = []
-    for row in dataset:
+    for row in train:
         new_row = []
         for col_index in range(len(row)):
             if col_index != column_ind:
-                new_row.append(row[column_ind])
+                new_row.append(row[col_index])
         new_train.append(new_row)
 
+    # second way (one loop, one list comprehension)
+    """new_train = []
+    for row in train:
+        new_row = [row[col_index] for col_index in range(len(row)) if col_index != column_ind]
+        new_train.append(new_row)"""
+
+    # third way (two nested list comprehensions)
+    """new_train = [[row[col_index] for col_index in range(len(row)) if col_index != column_ind] for row in train]"""
+
+    # one way (no list comprehension)
     new_test = []
     for row in test:
         new_row = []
@@ -171,12 +196,23 @@ if __name__ == "__main__":
                 new_row.append(row[col_index])
         new_test.append(new_row)
 
+    # second way (one loop, one list comprehension)
+    """new_test = []
+    for row in test:
+        new_row = [row[col_index] for col_index in range(len(row)) if col_index != column_ind]
+        new_test.append(new_row)"""
+
+    # third way (two nested list comprehensions)
+    """new_test = [[row[col_index] for col_index in range(len(row)) if col_index != column_ind] for row in test]"""
+
+    tree1 = build_tree(train)
     tree2 = build_tree(new_train)
 
     num_correct_1 = 0
     num_correct_2 = 0
 
-    for row, new_row in zip(test, new_test):
+    # one way (with two separate loops)
+    for row in test:
         tree_1_pred = max_classification(classify(row, tree1))
 
         correct_class = row[-1]
@@ -184,20 +220,39 @@ if __name__ == "__main__":
         if tree_1_pred == correct_class:
             num_correct_1 = num_correct_1 + 1
 
-        tree_2_pred = max_classification(classify(new_row, tree2))
+    for row in new_test:
+        tree_2_pred = max_classification(classify(row, tree2))
 
-        correct_class = new_row[-1]
+        correct_class = row[-1]
 
         if tree_2_pred == correct_class:
             num_correct_2 = num_correct_2 + 1
 
+    # second way (with one loop, using the zip() function)
+    # zip(list1, list2) -> allows for iteration with one loop of two lists with equal lengths
+    # ex: for el-in-list1, el-in-list2 in zip(list1, list2)
+
+    """num_correct_1 = 0
+    num_correct_2 = 0
+
+    for row, new_row in zip(test, new_test):
+        # 'row'' is an element of 'test' list
+        # 'new_row' is an element of 'new_test' list
+        tree_1_pred = max_classification(classify(row, tree1))
+        tree_2_pred = max_classification(classify(new_row, tree2))
+
+        correct_class = row[-1] # it's the same class for the two rows, 'row' and 'new_row'
+
+        if tree_1_pred == correct_class:
+            num_correct_1 = num_correct_1 + 1
+        if tree_2_pred == correct_class:
+            num_correct_2 = num_correct_2 + 1"""
+
+    # 'test' and 'new_test' are the same length, so it doesn't matter which length we take for the division
     total = len(test)
 
-    correctenss1 = num_correct_1 / total
-    correctenss2 = num_correct_2 / total
+    correctness1 = num_correct_1 / total
+    correctness2 = num_correct_2 / total
 
-    print(f'Tochnost so prvoto drvo na odluka: {correctenss1}')
-    print(f'Tochnost so vtoroto drvo na odluka: {correctenss2}')
-
-
-
+    print(f'Tochnost so prvoto drvo na odluka: {correctness1}')
+    print(f'Tochnost so vtoroto drvo na odluka: {correctness2}')

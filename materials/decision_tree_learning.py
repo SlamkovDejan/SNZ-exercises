@@ -260,12 +260,13 @@ def classify(observation, tree):
 
 def max_classification(class_dict: dict):
 
-    # list(tuples)
-    # t1 = (el1,el2) -> t1[0] -> t1[1]
+    # tuple
+    # t1 = (el1, el2) -> t1[0] = el1; t1[1] = el2
 
     # class_dict = {'High': 2, 'Low': 2}
-    # class_dict_list = [('High', 2), ('Low', 2)]
-    class_dict_list = class_dict.items()
+    # .items() returns a list of tuples representing every key-value pair in the dict
+    # we need a list because we want to iterate every key-value pair
+    class_dict_list = class_dict.items() # class_dict_list = [('High', 2), ('Low', 2)]
 
     max_tuple = None
     for tup in class_dict_list:
@@ -277,4 +278,4 @@ def max_classification(class_dict: dict):
             max_tuple = tup
 
     # max_tuple = ('High', 2)
-    return max_tuple[0]
+    return max_tuple[0] # max_tuple[0] = 'High'
