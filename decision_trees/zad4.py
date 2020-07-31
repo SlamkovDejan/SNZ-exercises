@@ -164,6 +164,9 @@ dataset = [
 if __name__ == "__main__":
     column_ind = int(input())
 
+    # casting
+    # int(value-to-cast); float(value-to-cast); str(value-to-cast)
+    # we use casting here because slicing requires int indices, but multiplication with 0.8 gives us a decimal number
     eighty = int(len(dataset) * 0.8)
 
     train = dataset[:eighty]

@@ -160,6 +160,7 @@ if __name__ == "__main__":
     planttype = input()
     testCase = [att1, att2, att3, att4, planttype]
 
+    # we use '//' for getting an integer as a result (we use integers as indices in slicing)
     half = len(trainingData) // 2
 
     # slice
