@@ -182,13 +182,17 @@ if __name__ == "__main__":
         new_train.append(new_row)
 
     # second way (one loop, one list comprehension)
-    """new_train = []
+    """
+    new_train = []
     for row in train:
         new_row = [row[col_index] for col_index in range(len(row)) if col_index != column_ind]
-        new_train.append(new_row)"""
+        new_train.append(new_row)
+    """
 
     # third way (two nested list comprehensions)
-    """new_train = [[row[col_index] for col_index in range(len(row)) if col_index != column_ind] for row in train]"""
+    """
+    new_train = [[row[col_index] for col_index in range(len(row)) if col_index != column_ind] for row in train]
+    """
 
     # one way (no list comprehension)
     new_test = []
@@ -200,13 +204,17 @@ if __name__ == "__main__":
         new_test.append(new_row)
 
     # second way (one loop, one list comprehension)
-    """new_test = []
+    """
+    new_test = []
     for row in test:
         new_row = [row[col_index] for col_index in range(len(row)) if col_index != column_ind]
-        new_test.append(new_row)"""
+        new_test.append(new_row)
+    """
 
     # third way (two nested list comprehensions)
-    """new_test = [[row[col_index] for col_index in range(len(row)) if col_index != column_ind] for row in test]"""
+    """
+    new_test = [[row[col_index] for col_index in range(len(row)) if col_index != column_ind] for row in test]
+    """
 
     tree1 = build_tree(train)
     tree2 = build_tree(new_train)
@@ -235,7 +243,8 @@ if __name__ == "__main__":
     # zip(list1, list2) -> allows for iteration with one loop of two lists with equal lengths
     # ex: for el-in-list1, el-in-list2 in zip(list1, list2)
 
-    """num_correct_1 = 0
+    """
+    num_correct_1 = 0
     num_correct_2 = 0
 
     for row, new_row in zip(test, new_test):
@@ -249,7 +258,8 @@ if __name__ == "__main__":
         if tree_1_pred == correct_class:
             num_correct_1 = num_correct_1 + 1
         if tree_2_pred == correct_class:
-            num_correct_2 = num_correct_2 + 1"""
+            num_correct_2 = num_correct_2 + 1
+    """
 
     # 'test' and 'new_test' are the same length, so it doesn't matter which length we take for the division
     total = len(test)
