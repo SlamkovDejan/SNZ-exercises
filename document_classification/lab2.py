@@ -1,3 +1,13 @@
+"""
+Дадено е тренинг множество од неколку документи. Притоа се знае секој документ од која класа е (science или sport).
+Mножеството е претставено како листи од торки, така што во секоја торка прв елемент е текстот на документот како стринг,
+а втор елемент е класата како стринг. Да се истренира модел врз основа на тренинг множеството. Потоа, за секој прочитан
+документ од стандарден влез да се испечатат зборовите кои се употребуваат за класификација, класата и веројатноста на
+зборот да е од таа класа (заокружено на 5 децимали), како и тежинската веројатност на зборот да припаѓа на класата
+(заокружено на 5 децимали). На крај да се испечати предвидената класа на документот и логаритам со основа 2 од
+веројатноста со која се предвидува (заокружено на 5 децимали). Забелешка: зборовите подредете ги по азбучен редослед.
+"""
+
 train_data = [
     ("""What Are We Searching for on Mars?
 Martians terrified me growing up. I remember watching the 1996 movie Mars Attacks! and fearing that the Red Planet harbored hostile alien neighbors. Though I was only 6 at the time, I was convinced life on Mars meant little green men wielding vaporizer guns. There was a time, not so long ago, when such an assumption about Mars wouldn’t have seemed so far-fetched.
