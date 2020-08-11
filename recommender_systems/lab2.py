@@ -26,7 +26,7 @@ from materials.recommender_systems import get_recommendations, sim_pearson
 if __name__ == '__main__':
     test_users = list(input().split(", "))
 
-    # the data in recommender systems is represented as a dict
+    # the dataset in recommender systems is represented as a dict
     test = {}
     train = {}
 
@@ -38,12 +38,17 @@ if __name__ == '__main__':
 
     # first way
     for test_user in test.keys():
+        # before we recommend items for a user, first we have to make sure that the user is present in the dataset
+        # that is, present in the dataset which we send to the algorithm, in this case the 'train' dataset
         train[test_user] = test[test_user]
         recommendations = get_recommendations(train, test_user, sim_pearson)[:3]
         recommendations = [tup[1] for tup in recommendations]
+        # after we're done with the test user we have to extract him from the dataset so it doesn't affect the recommendations of the other test users
+        # we ignore the returned result from the '.pop()' function because we don't need it
         train.pop(test_user)
 
-        # 'separator'.join(list/set) - joins the elements in the list/set argument in one string with 'separator'
+        # 'separator'.join(list/set) - joins the elements from the list/set argument in one string using 'separator'
+        # ex: '-'.join([2, 3, 5]) -> "2-3-5"
         print(f"{test_user}: {'; '.join(recommendations)}")
 
     # second way

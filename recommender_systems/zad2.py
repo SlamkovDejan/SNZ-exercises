@@ -24,18 +24,33 @@ from materials.recommender_systems import get_recommendations, sim_pearson, sim_
 if __name__ == '__main__':
     user_name = input()
 
-    eucild_recommendation = get_recommendations(ratings, user_name, sim_distance)[0]
+    euclid_recommendation = get_recommendations(ratings, user_name, sim_distance)[0]
     pearson_recommendation = get_recommendations(ratings, user_name, sim_pearson)[0]
 
-    if eucild_recommendation[1] == pearson_recommendation[1]:
-        print(eucild_recommendation[1])
+    if euclid_recommendation[1] == pearson_recommendation[1]:
+        print(euclid_recommendation[1])
     else:
         item_based = get_recommendations_item_based(transform_prefs(ratings), user_name)[0]
-        if item_based[1] == eucild_recommendation[1] or item_based[1] == pearson_recommendation[1]:
+        if item_based[1] == euclid_recommendation[1] or item_based[1] == pearson_recommendation[1]:
             print(item_based[1])
         else:
-            tuple_list = [eucild_recommendation, pearson_recommendation, item_based]
-            # sorted_list = sorted(tuple_list, key=lambda x: x[0], reverse=True)
-            # max_tuple = sorted_list[0]
+            # first way
+            tuple_list = [euclid_recommendation, pearson_recommendation, item_based]
             max_tuple = max(tuple_list, key=lambda x: x[0])
+            # second way
+            """
+            tuple_list = [euclid_recommendation, pearson_recommendation, item_based]
+            sorted_list = sorted(tuple_list, key=lambda x: x[0], reverse=True)
+            max_tuple = sorted_list[0]
+            """
+            # third way
+            """
+            max_tuple = None
+            if euclid_recommendation[0] > pearson_recommendation[0] and euclid_recommendation[0] > item_based[0]:
+                max_tuple = euclid_recommendation
+            elif pearson_recommendation[0] > euclid_recommendation[0] and pearson_recommendation[0] > item_based[0]:
+                max_tuple = pearson_recommendation
+            else:
+                max_tuple = item_based
+            """
             print(max_tuple[1])

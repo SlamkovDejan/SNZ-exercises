@@ -503,12 +503,16 @@ slusanost={2: {52: 11690,53: 11351,54: 10300,55: 8983,56: 6152,57: 5955,58: 4616
 from materials.recommender_systems import get_recommendations, get_recommendations_item_based, sim_pearson, transform_prefs
 
 
-def get_average(inner_dict: dict):
-    # sum(kolku_sekoj_korisnik_slusal) / kolku_korinik
+def get_average(inv_inner_dict: dict):
     # sum = 0
-    # for val in inner_dict.values():
+    # for val in inv_inner_dict.values():
         # sum = sum + val
-    return  sum(inner_dict.values()) / len(inner_dict.keys())
+    # return sum / len(inv_inner_dict.keys())
+
+    # sum(list/set) -> returns the sum of the elements in the list/set argument
+    # the elements of the list/set should be elements that can be summed, like ints, floats
+    # ex: sum([2, 4, 4]) -> 10
+    return sum(inv_inner_dict.values()) / len(inv_inner_dict.keys())
 
 if __name__ == "__main__":
     user_id = int(input())
@@ -517,9 +521,28 @@ if __name__ == "__main__":
     if user_id not in slusanost.keys():
         # average
         print("najgolem prosecen broj slusanja")
+
+        # getting the maximum average listened artist
+        # one way
         inv = transform_prefs(slusanost)
-        avgs = [(item, get_average(inv[item])) for item in inv.keys()]
+        avgs = [(artist, get_average(inv[artist])) for artist in inv.keys()]
+        # max(list/set, key) -> function that returns the max element of the list/set argument
+        # if Python can't compare the elements of the list/set by itself (like list of tuples), you must provide the
+        # 'key' for comparing through a lambda function
+        # ex: max([2, 4, 1]) -> 4; max([("a", 2), ("b", 3), ("c", 1)], key=lambda x: x[0]) -> ("c", 1)
         max_avg = max(avgs, key=lambda x: x[1])
+
+        # other way
+        """
+        inv = transform_prefs(slusanost)
+        max_avg = None
+        for artist in inv.keys():
+            avg = get_average(inv[artist])
+            if max_avg == None:
+                max_avg = (artist, avg)
+            elif avg > max_avg[1]:
+                max_avg = (artist, avg)
+        """
         print(max_avg[0])
     elif len(slusanost[user_id].items()) >= min_artists:
         print("item-based")

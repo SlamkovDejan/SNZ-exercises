@@ -612,12 +612,21 @@ if __name__ == '__main__':
     test_jokes = [joke for joke in jokes.items() if joke[0] >= 11]
     train_jokes = [joke for joke in jokes.items() if joke[0] < 11]
 
+    # because 'train_jokes' is a tuple list and the value of 's_ratings[test_user]' should be a dict,
+    # our job is to transform the tuple_list into a dict before we place it at 's_ratings[test_user]'
+
+    # one way
     train_dict = {}
     for joke in train_jokes:
         train_dict[joke[0]] = joke[1]
-
     s_ratings[test_user] = train_dict
-    # s_ratings[test_user] = dict(train_jokes)
+
+    # other way
+    # dict(tuple_list) -> this is a so called dict 'constructor' which takes a tuple list as an argument and creates a dict from that list
+    # but not any kind of tuple list, every tuple in set list must contain two elements, one which represents the key of the dict,
+    # and second element which represents the value of that key. This list is of the same structure as the one that the '.items()' method returns
+    # ex: tuple_list = [("a", 4), ("b", 5), ("c", 2)]; dict_from_list = dict(tuple_list); -> dict_from_list = {"a": 4, "b": 5, "c": 2}; dict_from_list.items() == tuple_list
+    """s_ratings[test_user] = dict(train_jokes)"""
 
     user_based = get_recommendations(s_ratings, test_user)
     item_based = get_recommendations_item_based(transform_prefs(s_ratings), test_user)
@@ -628,15 +637,21 @@ if __name__ == '__main__':
 
     len_relevant = len(test_jokes)
 
-    num_common_elements = 0
+    # one way of getting the length of the intersection, in this case between 'test_jokes' and 'user_based'
+    num_common_elements = 0  # num_common_elements -> len_intersection
     for joke in test_jokes:
         if joke in user_based:
             num_common_elements = num_common_elements + 1
+    # or with list comprehension
+    # num_common_elements = len([joke for joke in test_jokes if joke in user_based])
     len_retrieved = len(user_based)
 
     print(f"Preciznost so user-based preporaki: {num_common_elements / len_retrieved}")
     print(f"Odziv so user-based preporaki: {num_common_elements / len_relevant}")
 
+    # other way of getting the length of the intersection, in this case between 'test_jokes' and 'item_based'
+    # set(list) -> returns a set from the elements in the list argument
+    # 'set.intersection(other_set)' -> returns a set which holds the elements that are in the intersection between 'set' and 'other_set'
     intersection = set(test_jokes).intersection(set(item_based))
     len_intersection = len(intersection)
     len_retrieved = len(item_based)

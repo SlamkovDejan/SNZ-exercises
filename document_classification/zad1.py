@@ -93,6 +93,7 @@ def get_words_with_ignore(doc):
     words = get_words(doc)
     return set([words for word in words if word.lower() not in words_to_ignore])
 
+# if we are to change the original 'get_words' function, the new version must also take one argument and that's the document
 def get_words_with_ignore_2(doc):
     words = set()
     for word in re.split('\\W+', doc):
