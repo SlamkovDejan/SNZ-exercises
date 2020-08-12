@@ -1,3 +1,30 @@
+"""
+Во речникот slusanost се чуваат информации за тоа кој корисник колку пати има слушано песни од даден музички изведувач.
+Во речникот корисниците и артистите се претставени преку нивната единствена шифра (ID). На пример
+"{3: {102: 662,103: 493}}" означува дека корисникот со шифра 3, песни од музичкиот изведувач со шифра 102 има слушано
+662 пати, а песни од музичкиот изведувач со шифра 103 има слушано 493 пати. Поголем број на слушања на песни од даден
+музички изведувач покажува дека на корисникот му се допаѓаат песните од тој изведувач.
+
+Потребно е да направите евалуација на user-based систем за препорака на следниот начин. На влез се проследува вредност
+за процент според кој се прави поделба на речникот така што првите percent елементи се користат за добивање на
+препораките додека останатите се користат за евалуација. На пример, процент 30 означува дека за добивање на препораките
+треба да се користат првите 30% од елементите во речникот, додека останатите 70% се користат за евалуација.
+
+Потоа за секој елемент од елементите за тестирање се пресметува прецизност и одзив на следниот начин.
+За секој елемент се отстрануваат првите 10 изведувачи со најголем број на слушани песни. Тие претставуваат множество на
+вистински изведувачи. Множеството на препорачани изведувачи се состои од првите 10 препорачани изведувачи со највисока
+вредност. Прецизноста и одзивот, за секој елемент посебно, се пресметува со следните формули (доколку нема препорачани
+изведувачи, прецизноста е 0):
+
+прецизност = |relevant ∩ retrieved| / |retrieved|
+одзив = |relevant ∩ retrieved| / |relevant|
+
+retrieved - множество на препорачани изведувачи
+relevant - множество на вистински изведувачи
+
+Прецизноста и одзивот за целиот систем се добиваат како просечни вредности на прецизноста и одзивот за секој елемент.
+"""
+
 slusanost = {
     2: {52: 11690, 53: 11351, 54: 10300, 55: 8983, 56: 6152, 57: 5955, 58: 4616, 59: 4337, 60: 4147, 61: 3923, 62: 3782,
         63: 3735, 64: 3644, 65: 3579, 66: 3312, 67: 3301, 68: 2927, 69: 2720, 70: 2686, 71: 2654, 72: 2619, 73: 2584,
@@ -2544,15 +2571,19 @@ if __name__ == '__main__':
     percent = int(input())
 
     percent = percent / 100
-
-    kv_list = slusanost.items()
+    
+    # '.items()' returns some object of type similar to 'list' which does not support access through index, only iterating over the elements
+    # we need access through index because slicing works with indices
+    # so we turn that object into an actual list with the 'list()' constructor
+    # the following error occurs if we don't turn it into a list: "'dict_items' object is not subscriptable"
+    kv_list = list(slusanost.items())
     slice = int(len(kv_list) * percent)
 
     train = dict(kv_list[:slice])
     test = kv_list[slice:]
 
-    sum_precission = 0
-    sum_odziv = 0
+    sum_precision = 0
+    sum_responsiveness = 0
     for (user_id, artists) in test:
         sorted_artists = sorted(artists.items(), reverse=True, key=lambda x: x[1])
         relevant = sorted_artists[:10]
@@ -2570,23 +2601,32 @@ if __name__ == '__main__':
         len_retrieved = len(recommendations)
         len_relevant = len(relevant)
 
+        # avoiding division by zero error
+        # first way
         if len_retrieved == 0:
-            precission = 0
+            precision = 0
         else:
-            precission = len_intersection / len_retrieved
-        # try catch
-        odziv = len_intersection / len_relevant
+            precision = len_intersection / len_retrieved
+        # second way
+        """
+        precision = 0
+        if len_retrieved != 0:
+            precision = len_intersection / len_retrieved
+        """
+        # third way
+        """
+        try:
+            # the error should occur when dividing
+            precision = len_intersection / len_retrieved
+        except ZeroDivisionError: # except is the 'catch' clause in Python
+            # we catch 'ZeroDivisionError'
+            precision = 0
+        """
+        # there is no way that 'len_relevant' will be 0
+        responsiveness = len_intersection / len_relevant
 
-        sum_precission = sum_precission + precission
-        sum_odziv = sum_odziv + odziv
+        sum_precision = sum_precision + precision
+        sum_responsiveness = sum_responsiveness + responsiveness
 
-    print(f"Preciznost: {sum_precission / len(test)}")
-    print(f"Odziv: {sum_odziv / len(test)}")
-
-
-
-
-
-
-
-
+    print(f"Preciznost: {sum_precision / len(test)}")
+    print(f"Odziv: {sum_responsiveness / len(test)}")

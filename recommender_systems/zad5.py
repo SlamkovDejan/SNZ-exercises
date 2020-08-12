@@ -1,3 +1,19 @@
+"""
+Во речникот slusanost се чуваат информации за тоа кој корисник колку пати има слушано песни од даден музички изведувач.
+Во речникот корисниците и артистите се претставени преку нивната единствена шифра (ID). На пример
+"{3: {102: 662,103: 493}}" означува дека корисникот со шифра 3, песни од музичкиот изведувач со шифра 102 има слушано
+662 пати, а песни од музичкиот изведувач со шифра 103 има слушано 493 пати. Поголем број на слушања на песни од даден
+музички изведувач покажува дека на корисникот му се допаѓаат песните од тој изведувач.
+
+На влез се проследува нов музички изведувач во променливата new_artist_id, и корисниците кои го слушале тој изведувач со
+бројот на слушања во променливата new_artist_ratings - листа во која што секој од елементите е торка
+(корисник, слушаност). Дополнително, во променливата user_id се чита корисникот за кој треба да се направи препорака.
+Новите податоци од променливата new_artist_ratings треба да се додадат во речникот slusanost, за сите корисници освен
+корисникот user_id. За корисникот внесен на влез user_id треба да се препорачаат музички изведувачи преку item-based
+систем за препорака. На излез треба да се печати дали новиот музички изведувач new_artist_id е препорачан во првите 300
+препораки или не, како и сите препорачани музички изведувачи и нивната пирсонова корелација со изведувачот new_artist_id,
+ доколку тие се корелирани, односно Пирсоновата корелација има вредност поголема или еднаква на 0.8.
+"""
 slusanost = {
     2: {52: 11690, 53: 11351, 54: 10300, 55: 8983, 56: 6152, 57: 5955, 58: 4616, 59: 4337, 60: 4147, 61: 3923, 62: 3782, 63: 3735, 64: 3644, 65: 3579, 66: 3312, 67: 3301, 68: 2927, 69: 2720, 70: 2686, 71: 2654, 72: 2619, 73: 2584, 74: 2547, 75: 2397, 76: 2382, 77: 2120, 78: 2119, 79: 1990, 80: 1972, 81: 1948, 82: 1868, 83: 1792, 84: 1740, 85: 1638, 86: 1594, 87: 1559, 88: 1553, 89: 1519, 90: 1471, 91: 1438, 92: 1411, 93: 1407, 94: 1373, 95: 1363, 96: 1342, 97: 1337, 98: 1332, 99: 1330, 100: 1315},
         3: {102: 662, 103: 493, 104: 431, 105: 403, 106: 354, 107: 269, 108: 236, 109: 215, 110: 215, 111: 212, 112: 193, 113: 187, 114: 167, 115: 163, 116: 154, 117: 151, 118: 142, 119: 142, 120: 125, 121: 111, 122: 108, 123: 104, 124: 99, 125: 98, 126: 94, 127: 89, 128: 89, 129: 86, 130: 85, 131: 84, 132: 83, 133: 83, 134: 77, 135: 77, 136: 76, 137: 75, 138: 72, 139: 72, 140: 71, 141: 70, 142: 70, 143: 70, 144: 69, 145: 68, 146: 67, 147: 67, 148: 66, 149: 66, 150: 65},
@@ -508,8 +524,9 @@ if __name__ == "__main__":
     new_artist_ratings = [(int(x.split(':')[0]), int(x.split(':')[1])) for x in input().split(',')]
     user_id = int(input())
 
+    # the users are the "outer" keys in 'slusanost'
+    # the artist are the "inner" keys in 'slusanost'
     # slusanost[tuple[0]][new_artist_id] = tuple[1]
-
     for (user, rating) in new_artist_ratings:
         if user != user_id:
             slusanost[user][new_artist_id] = rating
@@ -523,11 +540,13 @@ if __name__ == "__main__":
     else:
         print("Noviot izveduvach ne e preporachan vo prvite 300 preporaki.")
 
-
+    # what we actually want is the similarity between two artists (the similarity between every artist and 'new_artist_id')
+    # we know that the similarity functions compute the similarity between two "outer" keys of the dict sent in as argument
+    # knowing that the artists are the "inner" keys of the dict 'slusanot' means that we can't send that dict as argument of the similarity function
+    # we need to make the artists "outer" keys, or with other words: invert the 'slusanost' dict (transform_prefs) and send the inverted dict as argument
     sim_list = [(artist, sim_pearson(inv, artist, new_artist_id)) for artist in recommendations]
     sim_list = [tup for tup in sim_list if tup[1] >= 0.8]
 
     print("Preporaki:")
-    
     for tup in sim_list:
         print(f"\t- Izveduvac: {tup[0]}, slichnost so noviot izveduvac: {tup[1]}")

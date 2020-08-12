@@ -1,4 +1,29 @@
-from scipy.stats._multivariate import special_ortho_group_frozen
+"""
+Во речникот book_reviews се чуваат информации за просечните оцени за автори на книги дадени од корисниците. Во речникот,
+корисниците и авторите се претставени преку нивната единствена шифра (ID). На пример "{3: {102: 4.5, 103: -2}}"
+означува дека просечната оцена за авторот 102 дадена од корисникот со шифра 3 е 4.5, а просечната оцена за авторот 103
+е -2. Поголема оцена покажува дека на корисникот му се допаѓаат книгите од тој автор.
+
+Од стандарден влез се чита корисник (user_id) и информации за неговите оцени (reviews). Потребно е да направите проверка
+дали додавање на корисникот даден во променливата user_id ја подобрува просечната прецизност на user-based систем за
+препорака со евклидово растојание. За евалуација се користат последните 30% од елементите во речникот.
+
+За секој елемент од множеството за евалуација се отстрануваат првите 25 автори со највисоки оцени.
+Тие претставуваат множество на вистински автори. Множеството на препорачани автори се состои од првите 25 препорачани
+автори со највисока вредност. Прецизноста и одзивот, за секој елемент посебно, се пресметува со следните формули
+(доколку нема препорачани автори, прецизноста е 0):
+
+прецизност = |relevant ∩ retrieved| / |retrieved|
+одзив = |relevant ∩ retrieved| / |relevant|
+
+retrieved - множество на препорачани автори
+relevant - множество на вистински автори
+
+Прецизноста и одзивот за целиот систем се добиваат како просечни вредности на прецизноста и одзивот за секој елемент.
+
+Да се испечатат двете вредности за прецизност (со и без отстранување на корисници). Потоа да се испечати дали додавање
+на корисник ја зголемува, намалува или не влијае врз прецизноста на системот за препорака.
+"""
 
 book_reviews = {
     2: {52: -1734, 53: -1742, 54: -1766, 55: -1796, 56: -1860, 57: -1864, 58: -1895, 59: -1901, 60: -1905, 61: -1910,
@@ -2999,75 +3024,62 @@ book_reviews = {
 
 from materials.recommender_systems import get_recommendations, sim_distance
 
+def calculate_precision(relevant: set, retrieved: set):
+    intersection = relevant.intersection(retrieved)
+    len_intersection = len(intersection)
+    len_retrieved = len(retrieved)
+
+    precision = 0
+    if len_retrieved != 0:
+        precision = len_intersection / len_retrieved
+    return precision
+
 if __name__ == '__main__':
-    user_id = int(input())
+    new_user_id = int(input())
     new_user_reviews = {int(r.split(': ')[0]): float(r.split(': ')[1]) for r in input().split(', ')}
 
+    seventy = int(len(book_reviews) * 0.7)
+
     kv_list = list(book_reviews.items())
-    seventy = int(len(kv_list) * 0.7)
-    train = dict(kv_list[:seventy])
+
     test = kv_list[seventy:]
+    train_no_new_user = dict(kv_list[:seventy])
+    train_new_user = dict(kv_list[:seventy])
+    train_new_user[new_user_id] = new_user_reviews
 
-    sum_precission = 0
+    sum_no_new_precision, sum_new_precision = 0, 0
     for (user, reviews) in test:
         sorted_authors = sorted(reviews.items(), reverse=True, key=lambda x: x[1])
         relevant = sorted_authors[:25]
         others = sorted_authors[25:]
 
-        train[user] = dict(others)
-        retrieved = get_recommendations(train, user, sim_distance)[:25]
-        train.pop(user)
+        train_no_new_user[user] = dict(others)
+        no_new_recommendations = get_recommendations(train_no_new_user, user, sim_distance)[:25]
+        train_no_new_user.pop(user)
+
+        train_new_user[user] = dict(others)
+        new_recommendations = get_recommendations(train_new_user, user, sim_distance)[:25]
+        train_new_user.pop(user)
 
         relevant = [item[0] for item in relevant]
-        retrieved = [item[1] for item in retrieved]
+        no_new_retrieved = [item[1] for item in no_new_recommendations]
+        new_retrieved = [item[1] for item in new_recommendations]
 
-        intersection = set(relevant).intersection(set(retrieved))
-        len_intersection = len(intersection)
-        len_retrieved = len(retrieved)
+        no_new_precision = calculate_precision(set(relevant), set(no_new_retrieved))
+        new_precision = calculate_precision(set(relevant), set(new_retrieved))
 
-        if len_retrieved == 0:
-            precission = 0
-        else:
-            precission = len_intersection / len_retrieved
+        sum_no_new_precision = sum_no_new_precision + no_new_precision
+        sum_new_precision = sum_new_precision + new_precision
 
-        sum_precission = sum_precission + precission
+    no_new_final = sum_no_new_precision / len(test)
+    new_final = sum_new_precision / len(test)
 
-    no_user_precission = sum_precission / len(test)
+    print(f"Preciznost bez dodavanje na korisnik: {no_new_final}")
+    print(f"Preciznost so dodavanje na korisnik: {new_final}")
 
-    print(f"Preciznost bez dodavanje na korisnik: {no_user_precission}")
-
-    train[user_id] = new_user_reviews
-
-    sum_precission = 0
-    for (user, reviews) in test:
-        sorted_authors = sorted(reviews.items(), reverse=True, key=lambda x: x[1])
-        relevant = sorted_authors[:25]
-        others = sorted_authors[25:]
-
-        train[user] = dict(others)
-        retrieved = get_recommendations(train, user, sim_distance)[:25]
-        train.pop(user)
-
-        relevant = [item[0] for item in relevant]
-        retrieved = [item[1] for item in retrieved]
-
-        intersection = set(relevant).intersection(set(retrieved))
-        len_intersection = len(intersection)
-        len_retrieved = len(retrieved)
-
-        if len_retrieved == 0:
-            precission = 0
-        else:
-            precission = len_intersection / len_retrieved
-
-        sum_precission = sum_precission + precission
-
-    user_precission = sum_precission / len(test)
-    print(f"Preciznost so dodavanje na korisnik: {user_precission}")
-
-    if user_precission == no_user_precission:
+    if new_final == no_new_final:
         print("Dodavanjeto na korisnik ne ja menuva preciznosta")
-    elif user_precission > no_user_precission:
+    elif new_final > no_new_final:
         print("Dodavanjeto na korisnik ja zgolemuva preciznosta")
     else:
         print("Dodavanjeto na korisnik ja namaluva preciznosta")
